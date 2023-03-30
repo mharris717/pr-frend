@@ -1,0 +1,29 @@
+{
+    "name": "pr-frend",
+    "version": "0.0.0-development",
+    "description": "The all-batteries-included GitHub SDK for Browsers, Node.js, and Deno",
+    "author": "Mike Harris",
+    "license": "MIT",
+    "engines": {
+        "node": ">= 14"
+    },
+    "scripts": {
+        "web": "ts-node src/web.ts",
+        "try": "ts-node src/main.ts"
+    },
+    "devDependencies": {
+        "@types/express": "^4.17.17",
+        "@types/node": "^18.15.11",
+        "prettier": "^2.8.7",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.0.2"
+    },
+    "dependencies": {
+        "dotenv": "^16.0.3",
+        "express": "^4.18.2",
+        "octokit": "^2.0.14",
+        "openai": "^3.2.1",
+        "simple-git": "^3.17.0",
+        "zod": "^3.21.4"
+    }
+}
