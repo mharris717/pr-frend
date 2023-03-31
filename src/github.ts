@@ -1,8 +1,8 @@
-import { Octokit, App } from 'octokit'
+import { Octokit } from 'octokit'
 import { makeBranch } from './git'
 
-const token = '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'
-const octokit = new Octokit({ auth: token })
+const token = process.env.GITHUB_TOKEN
+export const octokit = new Octokit({ auth: token })
 
 const baseParams = { owner: 'mharris717', repo: 'todo-pr' }
 

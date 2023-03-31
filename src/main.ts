@@ -1,16 +1,8 @@
-import { Octokit, App } from 'octokit'
-import { Configuration, OpenAIApi } from 'openai'
-import subProcess from 'child_process'
-import fs from 'fs'
-import simpleGit from 'simple-git'
 import { LINES, SimplePrompt } from './prompt'
 import { git, readRepoFile } from './git'
-import { createPull } from './github'
+import { createPull, octokit } from './github'
 
 const baseParams = { owner: 'mharris717', repo: 'todo-pr' }
-
-const token = process.env.GITHUB_TOKEN
-const octokit = new Octokit({ auth: token })
 
 async function respond(prNumber: number, commentId: number) {
   const base = { ...baseParams, pull_number: prNumber, comment_id: commentId }
