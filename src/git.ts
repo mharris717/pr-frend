@@ -1,5 +1,6 @@
 import simpleGit from 'simple-git'
 import fs from 'fs'
+import { myLog } from './util'
 
 const REPO_PATH = '/users/mharris717/code/orig/todo-pr-clean'
 export const git = simpleGit(REPO_PATH)
@@ -11,6 +12,7 @@ interface MakeBranchOps {
 }
 
 export async function makeBranch({ baseBranch, newBody, file }: MakeBranchOps) {
+  myLog(`Creating new branch for change`)
   const branchName = `patch-${baseBranch}-${new Date().getTime()}`
   await git.checkout(baseBranch)
   await git.fetch('origin')

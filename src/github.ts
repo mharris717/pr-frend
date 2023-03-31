@@ -1,5 +1,6 @@
 import { Octokit } from 'octokit'
 import { makeBranch } from './git'
+import { myLog } from './util'
 
 const token = process.env.GITHUB_TOKEN
 export const octokit = new Octokit({ auth: token })
@@ -13,7 +14,7 @@ interface Ops {
 }
 
 export async function createPull({ prNumber, file, newBody }: Ops) {
-  console.log('call to createPull', { prNumber, file, newBody })
+  myLog(`Creating new PR for change triggered from PR ${prNumber}`)
   const pr = await octokit.rest.pulls.get({
     ...baseParams,
     pull_number: prNumber,
@@ -33,8 +34,10 @@ export async function createPull({ prNumber, file, newBody }: Ops) {
     head: newBranch,
     base: baseBranch,
   }
-  console.log('create ops', ops)
-  const res = await octokit.rest.pulls.create(ops)
 
+  const res = await octokit.rest.pulls.create(ops)
+  myLog(
+    `Created PR ${res.data.number} for change triggered from PR ${prNumber}`,
+  )
   return res.data.number
 }

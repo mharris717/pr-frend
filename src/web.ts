@@ -1,5 +1,7 @@
 import express from 'express'
 import { z } from 'zod'
+import { possiblyRespond } from './main'
+import { myLog } from './util'
 
 const CommentQueryParams = z.object({
   pr: z.coerce.number(),
@@ -14,14 +16,22 @@ function runWebserver() {
     res.send(`Call to root with query ${req.query}`)
   })
 
-  app.get('/comment', (req, res) => {
+  // app.get('/comment', async (req, res) => {
+  //   const params = CommentQueryParams.parse(req.query)
+  //   console.log(params)
+  //   await possiblyRespond(params.pr, params.comment)
+  //   res.send(JSON.stringify(params))
+  // })
+
+  app.post('/comment', async (req, res) => {
     const params = CommentQueryParams.parse(req.query)
-    console.log(params)
+    myLog('Received Webhook for Comment Creation', params)
+    await possiblyRespond(params.pr, params.comment)
     res.send(JSON.stringify(params))
   })
 
   app.listen(port, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`)
+    myLog(`⚡️[server]: Server is running at http://localhost:${port}`)
   })
 }
 

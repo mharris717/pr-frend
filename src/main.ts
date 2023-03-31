@@ -1,10 +1,11 @@
 import { LINES, SimplePrompt } from './prompt'
 import { git, readRepoFile } from './git'
 import { createPull, octokit } from './github'
+import { myLog } from './util'
 
 const baseParams = { owner: 'mharris717', repo: 'todo-pr' }
 
-async function respond(prNumber: number, commentId: number) {
+export async function respond(prNumber: number, commentId: number) {
   const base = { ...baseParams, pull_number: prNumber, comment_id: commentId }
   const comment = await octokit.rest.pulls.getReviewComment(base)
   const body = comment.data.body
@@ -27,6 +28,17 @@ async function respond(prNumber: number, commentId: number) {
   })
 }
 
+export async function possiblyRespond(prNumber: number, commentId: number) {
+  const base = { ...baseParams, pull_number: prNumber, comment_id: commentId }
+  const comment = await octokit.rest.pulls.getReviewComment(base)
+  const { body, in_reply_to_id } = comment.data
+  if (body.trim() === '/robit PR') {
+    await respond(prNumber, in_reply_to_id!)
+  } else {
+    myLog(`Ignoring comment" "${body}"`)
+  }
+}
+
 async function getComments(prNumber: number) {
   const comments = await octokit.rest.pulls.listReviewComments({
     ...baseParams,
@@ -39,8 +51,10 @@ async function main() {
   // const comments = await getComments(4)
   // const id = comments.at(-1)!.id
   const id = 1154549989
-  console.log('Comment ID: ', id)
   await respond(4, id)
 }
 
-main()
+if (require.main === module) {
+  // This code will only run when the file is invoked directly
+  main()
+}

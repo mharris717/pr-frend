@@ -1,5 +1,6 @@
 import { Configuration, OpenAIApi } from 'openai'
 import fs from 'fs'
+import { myLog } from './util'
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_KEY,
@@ -27,7 +28,6 @@ export class SimplePrompt {
   }
 
   ask() {
-    console.log(this.toString())
     return ask(this)
   }
 }
@@ -42,18 +42,17 @@ export const LINES = [
 ]
 
 export async function ask(prompt: SimplePrompt): Promise<string> {
+  myLog('Asking GPT for updated code based on comment')
   const completion = await openai.createCompletion({
     model: 'text-davinci-003',
     prompt: prompt.toString(),
     max_tokens: 1000,
   })
-  console.log(completion.data)
   const res = completion.data.choices[0].text
   if (!res) {
     throw new Error('No response from OpenAI')
   }
   fs.writeFileSync('reply.log', res)
-  console.log('GPT Returned', res)
   const [junk, code] = res.split('NEWFILE:')
   return code.trim() + '\n'
 }
