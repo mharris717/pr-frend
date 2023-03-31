@@ -1,4 +1,5 @@
 import { Configuration, OpenAIApi } from 'openai'
+import fs from 'fs'
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_KEY,
@@ -34,7 +35,10 @@ export class SimplePrompt {
 export const LINES = [
   'I received a comment on my PR. I will provide you with the name and contents of the file in question, which part of the file was commented on, and the comment itself.',
   'Reply with the modified full contents of the file that makes the change requested by the comment.',
-  `Your reply should be json, like this: {"body": <NEWBODY>}`,
+  `Your reply should contain exactly the modified full contents of the file, and nothing else. Don't supply a label. Every single character in your reply needs to be valid python`,
+  `Your reply should look like this:
+  NEWFILE:
+  <CODE>`,
 ]
 
 export async function ask(prompt: SimplePrompt): Promise<string> {
@@ -48,6 +52,8 @@ export async function ask(prompt: SimplePrompt): Promise<string> {
   if (!res) {
     throw new Error('No response from OpenAI')
   }
+  fs.writeFileSync('reply.log', res)
   console.log('GPT Returned', res)
-  return JSON.parse(res).body
+  const [junk, code] = res.split('NEWFILE:')
+  return code.trim() + '\n'
 }

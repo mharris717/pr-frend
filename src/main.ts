@@ -15,7 +15,7 @@ async function respond(prNumber: number, commentId: number) {
     data: {
       file_name: file,
       file_contents: readRepoFile(file),
-      first_line_of_file: `${comment.data.start_line || 0}`,
+      first_line_of_file: `${comment.data.line || 0}`,
       comment: body,
     },
   })
@@ -36,8 +36,10 @@ async function getComments(prNumber: number) {
 }
 
 async function main() {
-  const comments = await getComments(4)
-  const id = comments[0].id
+  // const comments = await getComments(4)
+  // const id = comments.at(-1)!.id
+  const id = 1154549989
+  console.log('Comment ID: ', id)
   await respond(4, id)
 }
 
