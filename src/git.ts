@@ -1,9 +1,9 @@
 import simpleGit from 'simple-git'
 import fs from 'fs'
 import { myLog } from './util'
+import path from 'path'
 
-const REPO_PATH = '/users/mharris717/code/orig/todo-pr-clean'
-export const git = simpleGit(REPO_PATH)
+const REPOS_PATH = path.join(__dirname, '..', 'repos')
 
 interface MakeBranchOps {
   baseBranch: string
@@ -11,20 +11,41 @@ interface MakeBranchOps {
   file: string
 }
 
-export async function makeBranch({ baseBranch, newBody, file }: MakeBranchOps) {
-  myLog(`Creating new branch for change`)
-  const branchName = `patch-${baseBranch}-${new Date().getTime()}`
-  await git.checkout(baseBranch)
-  await git.fetch('origin')
-  await git.pull('origin', baseBranch)
-  await git.checkoutBranch(branchName, baseBranch)
-  fs.writeFileSync(`${REPO_PATH}/${file}`, newBody)
-  await git.add(file)
-  await git.commit(`patch`)
-  await git.push('origin', branchName)
-  return branchName
+function ensureRepoCheckout(owner: string, repo: string) {
+  const local = `${REPOS_PATH}/${owner}_${repo}`
+  if (!fs.existsSync(local)) {
+    // fs.mkdirSync(local, { recursive: true })
+    simpleGit().clone(`git@github.com:${owner}/${repo}.git`, local)
+  }
+  return local
 }
 
-export function readRepoFile(file: string): string {
-  return fs.readFileSync(`${REPO_PATH}/${file}`).toString()
+export class GitRepo {
+  owner: string
+  repo: string
+  local: string
+  constructor(owner: string, repo: string) {
+    this.owner = owner
+    this.repo = repo
+    this.local = ensureRepoCheckout(owner, repo)
+  }
+
+  git() {
+    return simpleGit(this.local)
+  }
+
+  async makeBranch({ baseBranch, newBody, file }: MakeBranchOps) {
+    const git = this.git()
+    myLog(`Creating new branch for change`)
+    const branchName = `patch-${baseBranch}-${new Date().getTime()}`
+    await git.checkout(baseBranch)
+    await git.fetch('origin')
+    await git.pull('origin', baseBranch)
+    await git.checkoutBranch(branchName, baseBranch)
+    fs.writeFileSync(`${this.local}/${file}`, newBody)
+    await git.add(file)
+    await git.commit(`patch`)
+    await git.push('origin', branchName)
+    return branchName
+  }
 }

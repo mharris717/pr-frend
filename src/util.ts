@@ -5,3 +5,8 @@ export function myLog(...args: any[]) {
 
   console.log(`[${d}]`, ...args)
 }
+
+export interface RepoIdentifier {
+  owner: string
+  repo: string
+}

@@ -6,6 +6,8 @@ import { myLog } from './util'
 const CommentQueryParams = z.object({
   pr: z.coerce.number(),
   comment: z.coerce.number(),
+  owner: z.string(),
+  repo: z.string(),
 })
 
 function runWebserver() {
@@ -26,7 +28,7 @@ function runWebserver() {
   app.post('/comment', async (req, res) => {
     const params = CommentQueryParams.parse(req.query)
     myLog('Received Webhook for Comment Creation', params)
-    await possiblyRespond(params.pr, params.comment)
+    await possiblyRespond(params)
     res.send(JSON.stringify(params))
   })
 
